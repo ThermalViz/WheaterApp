@@ -1,5 +1,31 @@
+import 'dart:convert';
+
 class WeatherModel {
-  String getWeatherIcon(int condition) {
+  late final int id;
+  late final String city;
+  late final String description;
+  late final double temp;
+  late final int condition;
+  bool error = false;
+  String? code, msg;
+
+  WeatherModel(String data, {this.error = false, this.code, this.msg}) {
+    if (error) {
+      id = 0;
+      temp = 0;
+      city = "";
+      return;
+    }
+    id = jsonDecode(data)["id"];
+    temp = jsonDecode(data)["main"]["temp"];
+    city = jsonDecode(data)["name"];
+    condition = jsonDecode(data)["weather"][0]["id"];
+  }
+
+  String getWeatherIcon() {
+
+    if (error) return "Error: $code";
+
     if (condition < 300) {
       return '🌩';
     } else if (condition < 400) {
@@ -19,15 +45,16 @@ class WeatherModel {
     }
   }
 
-  String getMessage(int temp) {
+  String getMessage() {
+    if (error) return msg ?? "";
     if (temp > 25) {
-      return 'It\'s 🍦 time';
+      return 'It\'s 🍦 time in $city';
     } else if (temp > 20) {
-      return 'Time for shorts and 👕';
+      return 'Time for shorts and 👕 in $city';
     } else if (temp < 10) {
-      return 'You\'ll need 🧣 and 🧤';
+      return 'You\'ll need 🧣 and 🧤 in $city';
     } else {
-      return 'Bring a 🧥 just in case';
+      return 'Bring a 🧥 just in case in $city';
     }
   }
 }

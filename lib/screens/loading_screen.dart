@@ -1,7 +1,8 @@
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter/material.dart';
-import 'package:weather_app/services/networking.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:weather_app/screens/location_screen.dart';
+import 'package:weather_app/services/networking.dart';
+
 class LoadingScreen extends StatefulWidget {
   const LoadingScreen({super.key});
 
@@ -13,29 +14,33 @@ class _LoadingScreenState extends State<LoadingScreen> {
 
   @override
   void initState() {
-    getWeatherData();
     super.initState();
+    getWeatherData((data) {
+      Navigator.push(context, MaterialPageRoute(builder: (context) {
+        return LocationScreen(data: data);
+      }));
+    });
+  }
+
+  void getWeatherData(Function(String data) navigateFunc) async {
+    try {
+      Networking networking = Networking();
+      final data = await networking.getDataWithLocation();
+      navigateFunc(data);
+    } catch (e) {
+      print(e);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return const Scaffold(
       body: Center(
-        child: SpinKitDoubleBounce(
-          size: 70.0,
-          color: Colors.white,
-        ),
+          child: SpinKitDoubleBounce(
+            size: 70.0,
+            color: Colors.white,
+          )
       ),
     );
   }
-
-  void getWeatherData() async{
-    Networking networking = new Networking();
-    String data = await networking.getData();
-
-    Navigator.push(context, MaterialPageRoute(builder: (context){
-      return LocationScreen(data);
-    }));
-  }
-
 }
